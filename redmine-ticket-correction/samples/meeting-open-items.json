@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.6",
+  "meeting": {"title": "架空プロジェクト定例"},
+  "meeting_summary": {"overview": "サンプルの課題と次回までの対応を確認した。"},
+  "redmine_meeting_fields": {},
+  "summary": {},
+  "human_review_required": [],
+  "items": [
+    {
+      "id": "ACT-001",
+      "title": "サンプルの検証結果をまとめる",
+      "type": "action_item",
+      "ticket_readiness": "ready",
+      "redmine_issue_fields": {}
+    }
+  ]
+}

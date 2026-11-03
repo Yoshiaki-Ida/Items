@@ -1,0 +1,16 @@
+{
+  "redmine_url": "https://redmine.example.com/redmine",
+  "verify_ssl": true,
+  "ca_bundle": null,
+  "timeout_seconds": 30,
+  "proxy": null,
+  "description_format": "markdown",
+  "parent_subject_prefix": "",
+  "parent_subject_suffix": " 議事録",
+  "continue_on_child_error": true,
+  "custom_field_ids": {},
+  "user_ids": {},
+  "status_ids": {},
+  "priority_ids": {},
+  "version_ids": {}
+}
