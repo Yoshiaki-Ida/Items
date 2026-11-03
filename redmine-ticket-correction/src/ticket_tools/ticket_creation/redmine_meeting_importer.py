@@ -283,6 +283,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--project-id", required=True, help="Redmine project id or identifier")
     parser.add_argument("--parent-tracker-id", required=True, type=int, help="Parent issue tracker ID")
     parser.add_argument("--child-tracker-id", required=True, type=int, help="Child issue tracker ID")
+    parser.add_argument("--registration-options", type=Path, help="Verified project/tracker candidates JSON (optional labels)")
     parser.add_argument(
         "--include-types",
         default=",".join(sorted(DEFAULT_INCLUDE_TYPES)),
@@ -495,9 +496,13 @@ def build_parent_description(data: dict[str, Any], formatter: TextFormatter) -> 
 
 def build_item_description(item: dict[str, Any], formatter: TextFormatter) -> str:
     _ = formatter  # Kept for API compatibility; child description format is fixed by schema v1.6.
-    description = str(item.get("description", "")).strip()
-    rationale = str(item.get("rationale", "")).strip()
-    expected_state = str(item.get("expected_state", "")).strip()
+    from .meeting_registration import optional_text, evidence_paragraph, separate_evidence
+
+    description = optional_text(item.get("description"))
+    rationale = optional_text(item.get("rationale"))
+    expected_state = optional_text(item.get("expected_state"))
+    evidence = evidence_paragraph(item.get("evidence"))
+    rationale, evidence = separate_evidence(rationale, evidence)
 
     lines: list[str] = []
     if description:
@@ -507,6 +512,10 @@ def build_item_description(item: dict[str, Any], formatter: TextFormatter) -> st
             lines.append("")
         lines.append("理由・背景:")
         lines.append(rationale)
+    if evidence:
+        if lines:
+            lines.append("")
+        lines.append(evidence)
     if expected_state:
         if lines:
             lines.append("")
@@ -990,11 +999,21 @@ def ask_duplicate_action(subject: str, issue_ids: list[int], kind: str) -> str:
 
 def run(argv: list[str]) -> int:
     args = parse_args(argv)
+    output_path = Path(args.output)
+    preview_path = output_path.with_suffix(".html")
+    if not args.apply and (
+        output_path.suffix.lower() == ".html" or output_path.resolve() == preview_path.resolve()
+    ):
+        raise ValueError("JSON output and HTML preview paths must differ; use a .json output path")
     input_data = read_json_file(Path(args.input_json))
     ensure_required_top_level(input_data)
 
     config = load_config(Path(args.config))
     runtime = make_runtime_settings(config, base_url_override=args.base_url)
+    from .meeting_registration import load_labels, render_registration_preview
+
+    labels = load_labels(args.registration_options, runtime.redmine_url,
+                         args.project_id, args.parent_tracker_id, args.child_tracker_id)
 
     id_errors = validate_config_ids(config)
     if id_errors:
@@ -1059,7 +1078,9 @@ def run(argv: list[str]) -> int:
             "unresolved_mappings": context.unresolved_values,
         }
         safe_write_json(args.output, dry_result)
+        preview_path.write_text(render_registration_preview(dry_result, runtime.redmine_url, labels, config), encoding="utf-8")
         print(f"Dry-run completed. Result written: {args.output}")
+        print(f"登録ドラフト（まだRedmineには登録されていません）: {preview_path}")
         return 0
 
     client = RedmineClient(

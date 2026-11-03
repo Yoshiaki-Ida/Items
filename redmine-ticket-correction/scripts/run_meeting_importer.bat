@@ -65,6 +65,8 @@ if "%OUTPUT_JSON%"=="" (
 
 set "BASE_URL_OVERRIDE=%~8"
 if /I "%BASE_URL_OVERRIDE%"=="--debug" set "BASE_URL_OVERRIDE="
+set "OPTIONS_ARG="
+if not "%~9"=="" if /I not "%~9"=="--debug" set OPTIONS_ARG=--registration-options "%~9"
 
 if "%DEBUG%"=="1" call :print_effective_args
 
@@ -111,9 +113,9 @@ if not exist "%CONFIG_JSON%" (
 if /I "%MODE%"=="apply" (
   echo Running apply mode...
   if "%BASE_URL_OVERRIDE%"=="" (
-    "%PYTHON_EXE%" -m "%MODULE%" "%INPUT_JSON%" --config "%CONFIG_JSON%" --project-id "%PROJECT_ID%" --parent-tracker-id "%PARENT_TRACKER_ID%" --child-tracker-id "%CHILD_TRACKER_ID%" --output "%OUTPUT_JSON%" --apply --confirm-create-parent
+    "%PYTHON_EXE%" -m "%MODULE%" "%INPUT_JSON%" --config "%CONFIG_JSON%" --project-id "%PROJECT_ID%" --parent-tracker-id "%PARENT_TRACKER_ID%" --child-tracker-id "%CHILD_TRACKER_ID%" --output "%OUTPUT_JSON%" --apply --confirm-create-parent %OPTIONS_ARG%
   ) else (
-    "%PYTHON_EXE%" -m "%MODULE%" "%INPUT_JSON%" --config "%CONFIG_JSON%" --base-url "%BASE_URL_OVERRIDE%" --project-id "%PROJECT_ID%" --parent-tracker-id "%PARENT_TRACKER_ID%" --child-tracker-id "%CHILD_TRACKER_ID%" --output "%OUTPUT_JSON%" --apply --confirm-create-parent
+    "%PYTHON_EXE%" -m "%MODULE%" "%INPUT_JSON%" --config "%CONFIG_JSON%" --base-url "%BASE_URL_OVERRIDE%" --project-id "%PROJECT_ID%" --parent-tracker-id "%PARENT_TRACKER_ID%" --child-tracker-id "%CHILD_TRACKER_ID%" --output "%OUTPUT_JSON%" --apply --confirm-create-parent %OPTIONS_ARG%
   )
   if errorlevel 1 (
     set "EC=!errorlevel!"
@@ -125,9 +127,9 @@ if /I "%MODE%"=="apply" (
 
 echo Running dry-run mode...
 if "%BASE_URL_OVERRIDE%"=="" (
-  "%PYTHON_EXE%" -m "%MODULE%" "%INPUT_JSON%" --config "%CONFIG_JSON%" --project-id "%PROJECT_ID%" --parent-tracker-id "%PARENT_TRACKER_ID%" --child-tracker-id "%CHILD_TRACKER_ID%" --output "%OUTPUT_JSON%"
+  "%PYTHON_EXE%" -m "%MODULE%" "%INPUT_JSON%" --config "%CONFIG_JSON%" --project-id "%PROJECT_ID%" --parent-tracker-id "%PARENT_TRACKER_ID%" --child-tracker-id "%CHILD_TRACKER_ID%" --output "%OUTPUT_JSON%" %OPTIONS_ARG%
 ) else (
-  "%PYTHON_EXE%" -m "%MODULE%" "%INPUT_JSON%" --config "%CONFIG_JSON%" --base-url "%BASE_URL_OVERRIDE%" --project-id "%PROJECT_ID%" --parent-tracker-id "%PARENT_TRACKER_ID%" --child-tracker-id "%CHILD_TRACKER_ID%" --output "%OUTPUT_JSON%"
+  "%PYTHON_EXE%" -m "%MODULE%" "%INPUT_JSON%" --config "%CONFIG_JSON%" --base-url "%BASE_URL_OVERRIDE%" --project-id "%PROJECT_ID%" --parent-tracker-id "%PARENT_TRACKER_ID%" --child-tracker-id "%CHILD_TRACKER_ID%" --output "%OUTPUT_JSON%" %OPTIONS_ARG%
 )
 if errorlevel 1 (
   set "EC=!errorlevel!"
@@ -165,6 +167,7 @@ echo   run_meeting_importer.bat dry-run
 echo   run_meeting_importer.bat apply "%PROJECT_ROOT%\samples\meeting-open-items.json" "%PROJECT_ROOT%\config\config.json" your_project_identifier 6 1 "%PROJECT_ROOT%\output\result.json" "https://redmine.example.com/redmine"
 echo.
 echo Optional env vars:
+echo   Optional ninth argument: registration-options JSON for destination names.
 echo   RUN_IMPORTER_DEBUG=1          ^(always print effective args^)
 echo   RUN_IMPORTER_PAUSE_ON_ERROR=1 ^(pause on error, useful when double-clicking .bat^)
 exit /b 2
