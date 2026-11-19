@@ -1,0 +1,11 @@
+beautifulsoup4>=4.12,<5
+fastapi>=0.116,<1
+lxml>=5.3,<7
+mammoth>=1.8,<2
+Markdown>=3.7,<4
+markdownify>=1.1,<2
+python-multipart>=0.0.20,<1
+PyYAML>=6.0,<7
+uvicorn>=0.35,<1
+pytest>=8.3,<9
+httpx>=0.28,<1

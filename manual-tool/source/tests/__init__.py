@@ -1,0 +1,1 @@
+"""ManualTool tests."""

@@ -1,0 +1,10 @@
+[project]
+name = "manual-tool"
+version = "0.1.0"
+description = "Batch and browser-based manual conversion, linting, and editing."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-v --tb=short"

@@ -1,0 +1,11 @@
+__pycache__/
+.pytest_cache/
+*.pyc
+output/
+projects/
+tmp/
+build/
+dist/
+/runtime/
+
+/.venv/
