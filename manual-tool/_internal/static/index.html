@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ManualTool</title>
+  <link rel="stylesheet" href="/static/style.css?v=20261105-1">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <button id="homeButton" class="icon-button hidden" aria-label="起動画面へ戻る">←</button>
+      <strong>ManualTool</strong>
+      <span id="modeTitle">ローカル・マニュアルツール</span>
+    </div>
+    <div id="documentActions" class="header-actions hidden">
+      <button id="exportButton" disabled>HTMLをフォルダへ書出し</button>
+      <button id="recheck" disabled>再チェック</button>
+    </div>
+    <div id="compositionActions" class="header-actions hidden">
+      <button id="pickHtmlFolder">HTMLフォルダ選択</button>
+      <button id="saveManualYaml" disabled>YAML保存</button>
+      <button id="buildManualYaml" class="primary-action" disabled>マニュアル構築</button>
+    </div>
+  </header>
+
+  <section id="modeChooser" class="mode-chooser">
+    <div class="mode-heading">
+      <p class="eyebrow">MANUAL WORKFLOW</p>
+      <h1>何を始めますか？</h1>
+      <p>個別HTMLの構成編集と、YAMLからの完成版構築をローカルで実行します。</p>
+    </div>
+    <div class="mode-cards">
+      <button id="chooseComposition" class="mode-card">
+        <span class="mode-icon">☷</span><strong>マニュアル編集</strong>
+        <small>HTMLを並べて階層化し、manual.yamlへ保存</small>
+      </button>
+      <button id="chooseDocumentEditor" class="mode-card">
+        <span class="mode-icon">✎</span><strong>個別ファイル編集</strong>
+        <small>個別ファイルを変換し、Lint・プレビュー・体裁編集</small>
+      </button>
+    </div>
+  </section>
+
+  <section id="compositionScreen" class="composition-screen hidden">
+    <div class="composition-meta">
+      <label>マニュアルタイトル<input id="manualTitle" type="text" value="製品マニュアル"></label>
+      <div><span>HTMLフォルダ</span><strong id="compositionSource">未選択</strong></div>
+      <div><span>YAML</span><strong id="compositionYaml">未保存</strong></div>
+    </div>
+    <div class="composition-grid">
+      <section class="composer-pane">
+        <div class="pane-heading"><h2>HTML一覧</h2><span id="unusedCount">0件</span></div>
+        <p class="pane-help">マニュアル構成にないHTMLは追加できます。</p>
+        <div id="unusedSources" class="source-list"><p class="empty">HTMLフォルダを選択してください</p></div>
+      </section>
+      <section class="composer-pane structure-pane">
+        <div class="pane-heading"><h2>マニュアル構成</h2><span>最大3階層</span></div>
+        <div class="structure-toolbar">
+          <button id="addGroup" disabled>グループ追加</button>
+          <button id="moveUp" disabled>↑ 上へ</button>
+          <button id="moveDown" disabled>↓ 下へ</button>
+          <button id="indentNode" disabled>→ インデント</button>
+          <button id="outdentNode" disabled>← アウトデント</button>
+          <button id="removeNode" disabled>削除</button>
+        </div>
+        <div class="structure-columns" aria-hidden="true">
+          <span>採番</span>
+          <strong>構成番号</strong>
+          <strong>HTML名</strong>
+        </div>
+        <div id="manualStructure" class="manual-structure"><p class="empty">構成は空です</p></div>
+        <label class="node-title-label">選択項目のタイトル<input id="nodeTitle" type="text" disabled></label>
+      </section>
+      <section class="composer-pane preview-pane">
+        <div class="pane-heading"><h2>選択HTMLプレビュー</h2><span id="previewSourceName"></span></div>
+        <iframe id="sourcePreview" title="選択HTMLプレビュー" sandbox=""></iframe>
+        <div id="compositionErrors" class="validation-results"><p class="empty">構成エラーはありません</p></div>
+        <div id="compositionBuildResult" class="build-result"><p class="empty">構成をYAMLへ保存すると、ここから完成版を構築できます</p></div>
+      </section>
+    </div>
+  </section>
+
+  <main id="documentEditorScreen" class="hidden">
+    <aside>
+      <button id="openFolder" class="folder-button">フォルダを開く</button>
+      <div id="workspaceInfo" class="hidden">
+        <h2 id="workspaceName"></h2><small id="workspacePath"></small><nav id="workspaceTree" class="tree"></nav>
+      </div>
+      <h2>開いている文書</h2><nav id="documents"><p class="empty">まだありません</p></nav>
+    </aside>
+    <div id="sidebarResizer" class="pane-resizer" role="separator" aria-label="ファイル一覧の幅を変更" aria-orientation="vertical" aria-valuemin="180" aria-valuenow="260" tabindex="0"></div>
+    <section class="workspace">
+      <div id="welcome"><h1>マニュアルを開く</h1><p>「フォルダを開く」から対象フォルダを選び、左側の文書を選択してください。</p></div>
+      <div id="editorArea" class="hidden">
+        <div class="document-title"><h1 id="filename"></h1><span id="saveState"></span></div>
+        <div class="tabs"><button class="tab active" data-panel="editPanel">元データ</button><button class="tab" data-panel="previewPanel">プレビュー</button><button class="tab" data-panel="visualEditPanel">編集ビュー</button></div>
+        <div class="split">
+          <div id="editPanel" class="panel"><div id="lineNumbers" aria-hidden="true"><div id="lineNumberContent">1</div></div><textarea id="editor" aria-label="元データ" spellcheck="false" wrap="off"></textarea></div>
+          <div id="previewPanel" class="panel hidden">
+            <div id="previewProgress" class="preview-progress hidden" role="status" aria-live="polite">
+              <progress aria-label="プレビューを生成しています"></progress>
+              <span id="previewProgressText">プレビューを生成しています… 0.0秒</span>
+            </div>
+            <iframe id="preview" title="HTMLプレビュー" sandbox="allow-same-origin"></iframe>
+          </div>
+          <div id="visualEditPanel" class="panel visual-edit-panel hidden">
+            <div class="visual-edit-help">編集したい見出し、本文、表セル、Note / Warning、画像をクリックしてください。</div>
+            <iframe id="visualEditor" title="HTML編集ビュー" sandbox="allow-same-origin"></iframe>
+          </div>
+          <div id="paneResizer" class="pane-resizer" role="separator" aria-label="表示領域と指摘領域の幅を変更" aria-orientation="vertical" aria-valuemin="260" tabindex="0"></div>
+          <section class="issues-panel">
+            <div class="issues-heading">
+              <h2>指摘</h2><span id="issueCount">0件</span>
+              <button id="downloadIssueReport" type="button" disabled>Markdown出力</button>
+            </div>
+            <div id="issues"></div>
+          </section>
+          <section id="elementProperties" class="element-properties hidden">
+            <div class="issues-heading"><h2>選択要素のプロパティ</h2><span id="selectedElementType">未選択</span></div>
+            <div class="property-body">
+              <p id="propertyHelp" class="empty">中央の編集ビューから要素を選択してください。</p>
+              <label id="headingNumberField" class="property-field hidden">章・節番号<input id="headingNumber" type="text" readonly></label>
+              <label id="elementTextField" class="property-field hidden">内容<textarea id="elementText" rows="10"></textarea></label>
+              <label id="elementFontSizeField" class="property-field hidden">フォントサイズ（pt）<input id="elementFontSize" type="number" min="6" max="72" step="0.5" placeholder="既定"></label>
+              <label id="elementBoldField" class="property-check-field hidden"><input id="elementBold" type="checkbox">太字にする</label>
+              <fieldset id="textRowUnderlineField" class="property-group hidden">
+                <legend>文字列ブロックの下線</legend>
+                <label class="compact-field">線の太さ<select id="textRowUnderline"><option value="none">なし</option><option value="thin">細い下線</option><option value="thick">太い下線</option></select></label>
+                <label class="color-field compact-color-field">線の色<input id="textRowUnderlineColor" type="color" value="#17365d"></label>
+              </fieldset>
+              <label id="imageReplacementField" class="property-field hidden">画像差し替え<input id="replacementImage" type="file" accept="image/png,image/jpeg,image/gif,image/webp"></label>
+              <button id="applyVisualChange" class="primary-action" disabled>変更を反映</button>
+              <fieldset id="blockToolsField" class="property-group hidden">
+                <legend>文字列行</legend>
+                <button id="openInsertTextDialog">文字列行を追加</button>
+                <button id="deleteSelectedBlock" class="danger-action hidden">選択ブロックを削除</button>
+              </fieldset>
+              <fieldset id="imageToolsField" class="property-group hidden">
+                <legend>画像の追加・削除</legend>
+                <input id="insertImage" type="file" accept="image/png,image/jpeg,image/gif,image/webp">
+                <div class="property-actions"><button id="insertImageBefore">選択位置の前へ追加</button><button id="insertImageAfter">選択位置の後へ追加</button></div>
+                <button id="deleteSelectedImage" class="danger-action hidden">選択画像を削除</button>
+              </fieldset>
+              <fieldset id="tableToolsField" class="property-group hidden">
+                <legend>選択中の表</legend>
+                <label class="compact-field">選択列の横幅（pt）<input id="tableCellWidth" type="number" min="6" max="720" step="0.5" placeholder="既定"></label>
+                <button id="applyTableColumnWidth">選択列へ横幅を反映</button>
+                <label class="compact-field">選択行の縦幅（pt）<input id="tableCellHeight" type="number" min="6" max="720" step="0.5" placeholder="既定"></label>
+                <button id="applyTableRowHeight">選択行へ縦幅を反映</button>
+                <label class="color-field compact-color-field">選択セルの背景色<input id="tableCellBackground" type="color" value="#fff2cc"></label>
+                <div class="property-actions"><button id="applyTableCellBackground">背景色を反映</button><button id="clearTableCellBackground" class="danger-action">背景色を削除</button></div>
+                <div class="property-actions"><button id="insertRowBefore">行を上へ追加</button><button id="insertRowAfter">行を下へ追加</button></div>
+                <button id="deleteTableRow" class="danger-action">選択行を削除</button>
+                <div class="property-actions"><button id="insertColumnBefore">列を左へ追加</button><button id="insertColumnAfter">列を右へ追加</button></div>
+                <button id="deleteTableColumn" class="danger-action">選択列を削除</button>
+                <small id="mergedTableNotice" class="property-note hidden">結合セルを含む表では行列の構造と寸法を変更できません。</small>
+              </fieldset>
+              <fieldset id="insertTableField" class="property-group hidden">
+                <legend>表を追加</legend>
+                <div class="table-size-fields"><label>行数<input id="newTableRows" type="number" min="1" max="50" value="2"></label><label>列数<input id="newTableColumns" type="number" min="1" max="20" value="2"></label></div>
+                <button id="insertTableAfter">選択位置の後へ表を追加</button>
+              </fieldset>
+              <button id="saveVisualHtml" disabled>HTML編集を保存</button>
+              <small class="property-note">章・節番号、HTMLタグ、CSSは編集できません。</small>
+            </div>
+          </section>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="documentProgress" class="document-progress hidden" role="status" aria-live="polite">
+    <progress aria-label="ファイルを読み込んでいます"></progress>
+    <span id="documentProgressText">ファイルを読み込んでいます… 0.0秒</span>
+  </div>
+  <div id="toast" role="status"></div>
+  <dialog id="insertTextDialog" class="edit-dialog" aria-labelledby="insertTextDialogTitle">
+    <form method="dialog">
+      <h2 id="insertTextDialogTitle">文字列行を追加</h2>
+      <label>文字列<textarea id="newTextRowContent" rows="5"></textarea></label>
+      <label>追加位置<select id="newTextRowPosition"><option value="after">選択位置の後</option><option value="before">選択位置の前</option></select></label>
+      <label class="check-field"><input id="newTextRowHasBackground" type="checkbox">背景色を付ける</label>
+      <label id="newTextRowColorField" class="color-field hidden">背景色<input id="newTextRowColor" type="color" value="#fff2cc"></label>
+      <div class="dialog-actions"><button id="cancelInsertText" type="button">キャンセル</button><button id="confirmInsertText" type="button" class="primary-action">追加</button></div>
+    </form>
+  </dialog>
+  <script src="/static/app.js?v=20260908-9"></script>
+</body>
+</html>

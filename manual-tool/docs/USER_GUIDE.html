@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ManualTool 操作ガイド</title>
+  <style>
+    :root {
+      --ink: #172033;
+      --muted: #5d687b;
+      --line: #dce3ed;
+      --paper: #ffffff;
+      --canvas: #f3f6fa;
+      --blue: #1769e0;
+      --blue-soft: #eaf2ff;
+      --green: #087c61;
+      --green-soft: #e8f7f2;
+      --amber: #a35b00;
+      --amber-soft: #fff5df;
+      --red: #b42318;
+      --shadow: 0 12px 36px rgba(28, 42, 67, .10);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+      line-height: 1.75;
+    }
+    a { color: var(--blue); }
+    .hero {
+      color: white;
+      background: linear-gradient(125deg, #10233f 0%, #174f99 65%, #167c91 100%);
+      padding: 58px max(24px, calc((100vw - 1120px) / 2));
+    }
+    .eyebrow { margin: 0 0 8px; font-size: 12px; font-weight: 800; letter-spacing: .16em; opacity: .78; }
+    .hero h1 { margin: 0; font-size: clamp(34px, 5vw, 56px); line-height: 1.2; }
+    .hero .lead { max-width: 760px; margin: 18px 0 0; font-size: 17px; opacity: .92; }
+    .hero-meta { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 26px; }
+    .hero-meta span { padding: 5px 12px; border: 1px solid rgba(255,255,255,.25); border-radius: 999px; background: rgba(255,255,255,.09); font-size: 13px; }
+    .layout { display: grid; grid-template-columns: 250px minmax(0, 820px); gap: 34px; max-width: 1120px; margin: 34px auto 80px; padding: 0 22px; }
+    nav { position: sticky; top: 18px; align-self: start; padding: 20px; background: var(--paper); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); }
+    nav strong { display: block; margin-bottom: 10px; }
+    nav a { display: block; padding: 6px 8px; color: #33425c; text-decoration: none; border-radius: 7px; font-size: 14px; }
+    nav a:hover { color: var(--blue); background: var(--blue-soft); }
+    nav .sub { padding-left: 22px; color: var(--muted); font-size: 13px; }
+    main { min-width: 0; }
+    .card, .chapter { margin-bottom: 24px; padding: 28px 32px; background: var(--paper); border: 1px solid var(--line); border-radius: 16px; box-shadow: var(--shadow); }
+    h2 { margin: 0 0 16px; font-size: 29px; line-height: 1.35; }
+    h3 { margin: 30px 0 12px; padding-top: 4px; font-size: 20px; }
+    h4 { margin: 22px 0 8px; font-size: 16px; }
+    p { margin: 8px 0 14px; }
+    .chapter-label { display: inline-block; margin-bottom: 9px; color: var(--blue); font-size: 12px; font-weight: 800; letter-spacing: .12em; }
+    .routes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .route { padding: 20px; border: 1px solid var(--line); border-radius: 12px; }
+    .route:first-child { border-top: 5px solid var(--blue); }
+    .route:last-child { border-top: 5px solid var(--green); }
+    .route h3 { margin-top: 0; }
+    .button-name { display: inline-block; padding: 2px 9px; border: 1px solid #bac6d6; border-radius: 6px; background: linear-gradient(#fff, #f3f6f9); color: #24334c; font-weight: 700; white-space: nowrap; }
+    .steps { list-style: none; margin: 18px 0 0; padding: 0; counter-reset: step; }
+    .steps > li { position: relative; min-height: 48px; margin: 0 0 22px; padding-left: 58px; counter-increment: step; }
+    .steps > li::before { content: counter(step); position: absolute; left: 0; top: 0; display: grid; place-items: center; width: 38px; height: 38px; color: white; background: var(--blue); border-radius: 50%; font-weight: 800; }
+    .steps > li::after { content: ""; position: absolute; left: 18px; top: 41px; bottom: -21px; width: 2px; background: var(--line); }
+    .steps > li:last-child::after { display: none; }
+    .steps strong { display: block; margin-bottom: 3px; font-size: 17px; }
+    .steps p { margin: 3px 0; }
+    .note, .warning, .success { margin: 18px 0; padding: 14px 17px; border-radius: 9px; border-left: 5px solid; }
+    .note { color: #184b8f; background: var(--blue-soft); border-color: var(--blue); }
+    .warning { color: #744200; background: var(--amber-soft); border-color: #e39720; }
+    .success { color: #08644f; background: var(--green-soft); border-color: var(--green); }
+    .note strong, .warning strong, .success strong { margin-right: 5px; }
+    .flow { display: flex; align-items: stretch; gap: 8px; margin: 22px 0; overflow-x: auto; }
+    .flow span { display: grid; place-items: center; min-width: 130px; min-height: 64px; padding: 10px; text-align: center; background: #f8fafc; border: 1px solid var(--line); border-radius: 9px; font-weight: 700; }
+    .flow b { align-self: center; color: #8b98aa; font-size: 20px; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0 22px; font-size: 14px; }
+    th, td { padding: 10px 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: #edf3fa; }
+    code { padding: 2px 5px; color: #913100; background: #fff1e7; border-radius: 4px; font-family: Consolas, monospace; }
+    pre { overflow-x: auto; padding: 16px 18px; color: #e8eef8; background: #172033; border-radius: 10px; line-height: 1.55; }
+    pre code { padding: 0; color: inherit; background: transparent; }
+    .checklist { padding-left: 22px; }
+    .checklist li { margin: 7px 0; }
+    .small { color: var(--muted); font-size: 13px; }
+    .screenshot { margin: 22px 0 28px; }
+    .screenshot a { display: block; overflow: hidden; border: 1px solid #cbd6e5; border-radius: 12px; background: #eef3f8; box-shadow: 0 8px 24px rgba(28, 42, 67, .12); }
+    .screenshot img { display: block; width: 100%; height: auto; }
+    .screenshot figcaption { margin-top: 9px; color: var(--muted); font-size: 13px; text-align: center; }
+    .screenshot figcaption::before { content: "図："; font-weight: 700; }
+    footer { padding: 28px; color: var(--muted); text-align: center; font-size: 13px; }
+    @media (max-width: 850px) {
+      .layout { display: block; }
+      nav { position: static; margin-bottom: 24px; }
+      .routes { grid-template-columns: 1fr; }
+      .card, .chapter { padding: 23px 20px; }
+    }
+    @media print {
+      @page { size: A4; margin: 14mm; }
+      body { background: white; font-size: 10pt; }
+      .hero { padding: 22mm 14mm; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .layout { display: block; max-width: none; margin: 0; padding: 0; }
+      nav { display: none; }
+      .card, .chapter { box-shadow: none; break-inside: avoid; }
+      .chapter { break-before: page; }
+      h3, h4 { break-after: avoid; }
+      .steps > li, table, .note, .warning { break-inside: avoid; }
+      .screenshot { break-inside: avoid; }
+      .screenshot a { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <p class="eyebrow">LOCAL MANUAL WORKFLOW</p>
+    <h1>ManualTool 操作ガイド</h1>
+    <p class="lead">Word・Markdown・HTMLを整える「ファイル変換」と、複数のHTMLを章立てして完成版を作る「マニュアル結合」の操作手順です。</p>
+    <div class="hero-meta"><span>完全ローカル</span><span>AI不使用</span><span>HTML / 印刷対応</span><span>対象：ManualTool現行版</span></div>
+  </header>
+
+  <div class="layout">
+    <nav aria-label="目次">
+      <strong>目次</strong>
+      <a href="#overview">はじめに</a>
+      <a href="#start">入手と起動</a>
+      <a href="#conversion">ファイル変換編</a>
+      <a class="sub" href="#conversion-open">フォルダを開く</a>
+      <a class="sub" href="#conversion-edit">内容を修正する</a>
+      <a class="sub" href="#conversion-rules">チェックルール</a>
+      <a class="sub" href="#conversion-output">HTMLを書き出す</a>
+      <a class="sub" href="#conversion-plantuml">PlantUMLの図を使う</a>
+      <a class="sub" href="#conversion-report">指摘一覧をMarkdownで出力する</a>
+      <a href="#assembly">マニュアル結合編</a>
+      <a class="sub" href="#assembly-prepare">フォルダを準備する</a>
+      <a class="sub" href="#assembly-compose">構成を編集する</a>
+      <a class="sub" href="#assembly-build">完成版を構築する</a>
+      <a href="#trouble">困ったときは</a>
+    </nav>
+
+    <main>
+      <section id="overview" class="card">
+        <h2>はじめに</h2>
+        <p>ManualToolの起動画面では、目的に応じて次の2つの入口を選びます。このガイドの画面例は架空のデータを使用しています。</p>
+        <div class="routes">
+          <article class="route">
+            <h3>✎ ファイル変換編</h3>
+            <p>Word、Markdown、HTMLを1文書ずつ開き、変換結果の確認・修正・HTML書き出しを行います。</p>
+            <p class="small">入口：<span class="button-name">個別ファイル編集</span></p>
+          </article>
+          <article class="route">
+            <h3>☷ マニュアル結合編</h3>
+            <p>準備した複数のHTMLを並べ、最大3階層の章構成にして、目次付きの完成版HTMLを作ります。</p>
+            <p class="small">入口：<span class="button-name">マニュアル編集</span></p>
+          </article>
+        </div>
+        <div class="flow" aria-label="推奨作業順">
+          <span>原稿を準備</span><b>→</b><span>ファイル変換・修正</span><b>→</b><span>個別HTMLを書出し</span><b>→</b><span>章構成を編集</span><b>→</b><span>完成版を構築</span>
+        </div>
+      </section>
+
+      <section id="start" class="card">
+        <h2>入手と起動</h2>
+        <ol class="steps">
+          <li>
+            <strong>GitHubからWindows用の配布フォルダを入手する</strong>
+            <p>配布フォルダは<a href="https://github.com/Yoshiaki-Ida/Items">Yoshiaki-Ida/Items</a>の<code>main</code>ブランチ直下の<code>manual-tool/</code>にあります。配布フォルダが手元にある場合は手順2から進めます。</p>
+            <p>Git for Windowsが入っているPCで、<code>Items</code>フォルダを作りたい場所をPowerShellで開き、次を実行します。</p>
+            <pre><code>git --version
+git clone --branch main --depth 1 --filter=blob:none --sparse https://github.com/Yoshiaki-Ida/Items.git Items
+git -C .\Items sparse-checkout set manual-tool</code></pre>
+            <p><code>Items\manual-tool\ManualTool.bat</code>が取得できたことを確認します。PlantUMLを使う場合は、起動前に手順2の初回セットアップを行ってください。PowerShellから起動する場合は、同じ場所で次を実行します。</p>
+            <pre><code>if (-not (Test-Path -LiteralPath .\Items\manual-tool\ManualTool.bat -PathType Leaf)) {
+    throw 'ManualTool.bat が見つかりません。取得したブランチとフォルダを確認してください。'
+}
+&amp; .\Items\manual-tool\ManualTool.bat</code></pre>
+            <p>この方法で取得済みの<code>Items</code>を更新する場合は、ManualToolを終了してから、<code>Items</code>の親フォルダで次を実行します。</p>
+            <pre><code>git -C .\Items pull --ff-only</code></pre>
+          </li>
+          <li><strong>必要に応じてPlantUMLをセットアップし、ManualToolを起動する</strong>
+            <p>PlantUMLを使う場合は、初回だけ、配布フォルダをPowerShellで開いて次を実行します。Javaが配布フォルダ内に配置されます。初回セットアップにはインターネット接続が必要です。</p>
+            <pre><code>powershell.exe -NoProfile -File .\Setup-PlantUML.ps1</code></pre>
+            <p>フォルダ構成を保ったまま<code>ManualTool.bat</code>をダブルクリックします。Windows配布版の起動にPythonのインストールは不要です。</p>
+          </li>
+          <li><strong>ブラウザで起動画面を確認する</strong><p>通常は <code>http://127.0.0.1:8765/</code> が開きます。開かない場合はブラウザへURLを入力してください。目的に応じて2つのモードから選択します。</p></li>
+        </ol>
+        <div class="note"><strong>開発者向け：</strong>ソースコードから起動する場合だけ、ManualToolのフォルダで<code>.\scripts\manual-edit.bat</code>を実行します。通常の配布利用では<code>ManualTool.bat</code>を使用してください。</div>
+        <div class="warning"><strong>注意：</strong>ManualToolの編集セッションは一時領域です。サーバーを再起動した場合は、対象フォルダと文書を開き直してください。終了時は起動したコンソール画面を閉じます。</div>
+        <div class="warning"><strong>変換機能の前提：</strong>Wordの数式変換にはPandoc、埋め込みVisioやEMF／WMFのPNG変換にはPowerShellやMicrosoft Visioが必要になる場合があります。未導入または変換失敗時は既存のフォールバック画像や通常のWord変換が使われます。</div>
+      </section>
+
+      <section id="conversion" class="chapter">
+        <span class="chapter-label">PART 1</span>
+        <h2>ファイル変換編</h2>
+        <p>対応形式はWord（<code>.docx</code>）、Markdown（<code>.md</code> / <code>.markdown</code>）、HTML（<code>.html</code> / <code>.htm</code>）です。</p>
+
+        <h3 id="conversion-open">1. 対象フォルダと文書を開く</h3>
+        <ol class="steps">
+          <li><strong><span class="button-name">個別ファイル編集</span>を選ぶ</strong><p>起動画面から個別文書の編集モードへ移動します。</p></li>
+          <li><strong><span class="button-name">フォルダを開く</span>を押す</strong><p>対象文書と、その文書が参照する画像を含むフォルダを選択します。</p></li>
+          <li><strong>左側のツリーから文書を選ぶ</strong><p>読み込み中は経過秒数が表示されます。Wordや大きな画像を含む文書では完了まで待ってください。</p></li>
+        </ol>
+        <div class="warning"><strong>重要：</strong>HTMLだけを単体選択する方式はありません。相対参照された画像も一緒に取り込むため、必ず<span class="button-name">フォルダを開く</span>を使用します。</div>
+        <figure class="screenshot">
+          <a href="元データ画面.png" target="_blank" rel="noopener"><img src="元データ画面.png" width="1905" height="903" loading="lazy" alt="ManualToolの元データ画面。左にフォルダと文書、中央にMarkdown、右にLint指摘が表示されている"></a>
+          <figcaption>元データ画面。左の文書ツリー、中央の変換後Markdown、右のLint指摘を同時に確認できます。クリックすると原寸で開きます。</figcaption>
+        </figure>
+
+        <h3 id="conversion-edit">2. 変換結果を確認・修正する</h3>
+        <table>
+          <thead><tr><th>画面</th><th>用途</th><th>主な操作</th></tr></thead>
+          <tbody>
+            <tr><td><strong>元データ</strong></td><td>変換後のMarkdownを確認</td><td>直接修正、Lint指摘箇所の確認</td></tr>
+            <tr><td><strong>プレビュー</strong></td><td>完成イメージを確認</td><td>要素をクリックして編集ビューへ移動</td></tr>
+            <tr><td><strong>編集ビュー</strong></td><td>HTMLやCSSを意識せず編集</td><td>中央で要素を選び、右側のプロパティを変更</td></tr>
+          </tbody>
+        </table>
+        <p>3つの画面は表示位置が連動します。Lintの「指摘」をクリックすると、元データの該当行へ移動します。</p>
+        <figure class="screenshot">
+          <a href="プレビュー画面.png" target="_blank" rel="noopener"><img src="プレビュー画面.png" width="1905" height="903" loading="lazy" alt="ManualToolのプレビュー画面。中央にHTML表示、右にLint指摘が表示されている"></a>
+          <figcaption>プレビュー画面。HTMLとしての見え方を確認し、編集したい要素をクリックして編集ビューへ移動できます。</figcaption>
+        </figure>
+
+        <h4>編集ビューの基本手順</h4>
+        <ol class="steps">
+          <li><strong>中央の要素をクリックする</strong><p>見出し、本文、リスト項目、表セル、Note / Warning、画像などを選択します。</p></li>
+          <li><strong>右側のプロパティを変更する</strong><p>文字列、フォントサイズ、太字、下線、背景色、画像など、選択要素に応じた項目が表示されます。</p></li>
+          <li><strong><span class="button-name">変更を反映</span>を押す</strong><p>編集ビュー上で結果を確認します。この時点ではまだ文書へ確定保存されていません。</p></li>
+          <li><strong><span class="button-name">HTML編集を保存</span>を押す</strong><p>編集結果が元データ、通常プレビュー、Lintへ反映されます。</p></li>
+        </ol>
+        <figure class="screenshot">
+          <a href="編集ビュー画面.png" target="_blank" rel="noopener"><img src="編集ビュー画面.png" width="1905" height="903" loading="lazy" alt="ManualToolの編集ビュー画面。中央で本文を選択し、右のプロパティで内容や下線を設定している"></a>
+          <figcaption>編集ビュー画面。中央で対象要素を選択すると、右側に文字、フォント、太字、下線などの編集項目が表示されます。</figcaption>
+        </figure>
+
+        <h4>編集できる内容</h4>
+        <table>
+          <thead><tr><th>対象</th><th>できること</th><th>補足</th></tr></thead>
+          <tbody>
+            <tr><td>見出し</td><td>見出し本文、フォントサイズ、太字</td><td>章・節番号は直接変更できません</td></tr>
+            <tr><td>通常本文</td><td>本文、6～72pt、太字、細い／太い下線、線色</td><td>下線を「なし」に戻せます</td></tr>
+            <tr><td>リスト項目</td><td>項目本文、6～72pt、太字</td><td>入れ子の子リストは維持されます</td></tr>
+            <tr><td>文字列行</td><td>追加・削除、背景色、フォント、太字、下線</td><td>選択位置の前後へ追加できます</td></tr>
+            <tr><td>画像</td><td>差し替え、前後へ追加、削除</td><td>PNG / JPEG / GIF / WebP</td></tr>
+            <tr><td>表</td><td>セル編集、背景色、行列追加・削除、寸法変更、表追加</td><td>寸法は6～720pt</td></tr>
+          </tbody>
+        </table>
+        <div class="note"><strong>表の寸法：</strong>横幅は選択セルが属する列だけ、縦幅は選択セルが属する行だけに適用されます。値を空欄にして反映すると既定寸法へ戻ります。</div>
+        <div class="warning"><strong>結合セル：</strong><code>rowspan</code>または<code>colspan</code>を含む表では、行列の追加・削除と寸法変更は無効です。セル本文と背景色は編集できます。</div>
+
+        <h4>Word変換時の確認ポイント</h4>
+        <ul class="checklist">
+          <li>Word数式はMathMLとして変換されます。</li>
+          <li>埋め込みVisioは元データを独立したファイルとして保存し、ブラウザ表示用のPNGを生成します。</li>
+          <li>Visio以外のEMF／WMFも、ブラウザ表示用のPNGへ変換します。</li>
+          <li>複合図を完全に再現できない可能性がある場所には「変換上の注意」が表示されます。Word原本と比較してください。</li>
+          <li>Wordの段落書式由来の不要な引用枠は変換時に取り除かれます。</li>
+        </ul>
+
+        <h4>Wordに埋め込まれたVisioの保存方法</h4>
+        <p>Word内にVisioオブジェクトが見つかった場合、ManualToolはWordに埋め込まれた元データと表示用画像を分けて扱います。</p>
+        <div class="flow" aria-label="埋め込みVisioの変換手順">
+          <span>Word内の埋め込み<br>Visioを検出</span><b>→</b><span>元のVSD／VSDXを<br>独立ファイルで保存</span><b>→</b><span>Microsoft Visioで<br>PNGへ変換</span><b>→</b><span>プレビューとHTMLから<br>PNGを参照</span>
+        </div>
+        <pre><code>書き出し先/
+├─ 文書名.html
+├─ visio/文書名/           # Wordから取り出した元の .vsd / .vsdx
+└─ images/文書名/visio/    # HTML表示用に変換した .png</code></pre>
+        <div class="note"><strong>元データを保持：</strong>HTMLではPNGを表示しますが、編集可能なVisio原本は<code>visio/文書名/</code>へ別ファイルとして残ります。</div>
+        <div class="warning"><strong>変換できない場合：</strong>Microsoft Visioが利用できない、またはPNG変換に失敗した場合は、Word内に保存されていた既存の表示用画像を使用します。現行版はSVGではなくPNGへ変換します。</div>
+
+        <h3 id="conversion-rules">3. チェックルールをYAMLで管理する</h3>
+        <p>右側の「指摘」に表示するチェック内容のうち、文書ごとに調整したい項目は<code>config/rules.yaml</code>に保存されています。ルールをコードへ埋め込まず、YAMLのリストや値を変更して運用できます。</p>
+        <table>
+          <thead><tr><th>YAML項目</th><th>チェック内容</th></tr></thead>
+          <tbody>
+            <tr><td><code>required_sections</code></td><td>必須とする見出し名と見出しレベル</td></tr>
+            <tr><td><code>ambiguous_words</code></td><td>「適切に」「必要に応じて」など、確認対象とする曖昧表現</td></tr>
+            <tr><td><code>preferred_terms</code></td><td>表記ゆれと推奨表記の対応。自動修正候補にも使用</td></tr>
+            <tr><td><code>long_line_limit</code></td><td>長すぎる1行として指摘する文字数</td></tr>
+            <tr><td><code>remove_block_marker_patterns</code></td><td>T.B.Dなど、開始・終了の対応や自動削除に使用するマーカー</td></tr>
+          </tbody>
+        </table>
+        <pre><code># config/rules.yaml の例
+required_sections:
+  - {level: 1, title: "概要"}
+  - {level: 1, title: "注意事項"}
+
+ambiguous_words:
+  - "適切に"
+  - "必要に応じて"
+
+preferred_terms:
+  "下さい": "ください"
+  "出来る": "できる"
+
+long_line_limit: 120</code></pre>
+        <div class="note"><strong>YAML以外の固定チェック：</strong>空見出し、見出しレベルの飛び、Markdown表の列数、括弧やリンク記号の対応などはプログラム側の共通チェックとして実行されます。</div>
+        <div class="warning"><strong>反映方法：</strong>GUI版は起動時に<code>config/rules.yaml</code>を読み込みます。ルールを変更した場合は、作業を保存してManualToolを再起動してください。CLIでは<code>--rules &lt;path&gt;</code>で別のルールYAMLを指定できます。</div>
+        <p>指摘を「無視」にした結果はルールYAMLへは書き戻しません。書き出し時の<code>lint-report.json</code>へ<code>ignored: true</code>として記録されます。</p>
+
+        <h3 id="conversion-output">4. HTMLをフォルダへ書き出す</h3>
+        <ol class="steps">
+          <li><strong>プレビューと指摘を最終確認する</strong><p>必要に応じて<span class="button-name">再チェック</span>を押し、保存とLintを実行します。</p></li>
+          <li><strong><span class="button-name">HTMLをフォルダへ書出し</span>を押す</strong><p>保存先フォルダを選択します。未保存の編集ビュー内容も先に保存されます。</p></li>
+          <li><strong>成果物を確認する</strong><p>HTML本体に加え、画像、元Visio、修正後Markdown、Lintレポートが必要に応じて出力されます。</p></li>
+        </ol>
+        <pre><code>選択した出力フォルダ/
+├─ 文書名.html
+├─ images/文書名/          # 抽出・追加した画像
+├─ visio/文書名/           # 埋め込みVisioがある場合
+└─ 文書名_manual/
+   ├─ 文書名_fixed.md
+   ├─ lint-report.json      # 無視した指摘を含む履歴
+   └─ lint-report.md        # 画面に表示されている指摘の表</code></pre>
+        <div class="success"><strong>完了条件：</strong>出力したHTMLをブラウザで開き、本文と画像が表示されることを確認します。</div>
+
+        <h3 id="conversion-plantuml">5. PlantUMLの図を使う</h3>
+        <p>Markdownに<code>plantuml</code>コードブロックを書きます。次の例をMarkdownファイルに貼り付けて試せます。</p>
+        <pre><code>```plantuml
+@startuml
+actor "利用者" as User
+participant "ManualTool" as Tool
+User -&gt; Tool : Markdownを開く
+Tool --&gt; User : 図を表示
+@enduml
+```</code></pre>
+        <ol class="steps">
+          <li><strong>プレビューで図を確認する</strong><p><span class="button-name">個別ファイル編集</span>でフォルダを開き、Markdownを選びます。<span class="button-name">プレビュー</span>にSVGの図が表示されます。この確認にHTMLの書き出しは不要です。</p></li>
+          <li><strong>HTMLを書き出す</strong><p><span class="button-name">HTMLをフォルダへ書出し</span>で、図とPlantUML原文が埋め込まれたHTMLを保存します。</p></li>
+          <li><strong>書き出したHTMLで図を編集する</strong><p>ManualToolを起動したまま、書き出したHTMLをブラウザで直接開きます。図の下の<span class="button-name">PlantUMLソース</span>を開いて原文を修正すると、入力が止まったところでSVGが自動更新されます。変換エラー時は直前の図が表示され、図を更新できるまで保存ボタンは無効になります。</p></li>
+          <li><strong>編集結果を保存する</strong><p>更新した図を確認して<span class="button-name">HTMLを保存</span>を押すと、原文と最新のSVGを含むHTMLがダウンロードされます。相対パスの画像がある場合は、保存したHTMLを元のHTMLと同じフォルダに置きます。</p></li>
+          <li><strong>印刷・PDF化する</strong><p>ブラウザの印刷機能を使います。「PlantUMLソース」を開いたままでも、原文と案内文は印刷・PDF出力に含まれず、図が表示されます。</p></li>
+        </ol>
+        <div class="note">閲覧と印刷には埋め込み済みのSVGが使われます。配布版で図を生成・更新するには、<a href="#start">入手と起動</a>のPlantUML初回セットアップを行います。図の生成と更新はPC内で行われます。</div>
+
+        <h3 id="conversion-report">6. 指摘一覧をMarkdownで出力する</h3>
+        <ol class="steps">
+          <li><strong>対象文書の指摘を確認する</strong><p>文書を編集した場合は、<span class="button-name">再チェック</span>で指摘一覧を更新します。</p></li>
+          <li><strong><span class="button-name">Markdown出力</span>を押す</strong><p>右側の「指摘」欄から<code>lint-report.md</code>をダウンロードします。重要度、対象行、ルール、指摘内容、修正案を確認できます。</p></li>
+        </ol>
+        <div class="note">Markdownに出力されるのは画面に表示されている指摘です。指摘が0件の場合は「指摘はありません。」と記載されます。HTMLをフォルダへ書き出すと、<code>文書名_manual/</code>にも同じMarkdown表が作成され、無視した指摘の履歴は<code>lint-report.json</code>に残ります。</div>
+      </section>
+
+      <section id="assembly" class="chapter">
+        <span class="chapter-label">PART 2</span>
+        <h2>マニュアル結合編</h2>
+        <p>複数の個別HTMLを並べ、章・節・項の構成とタイトルを決めて、1つの完成版HTMLへ結合します。</p>
+
+        <h3 id="assembly-prepare">1. プロジェクトフォルダを準備する</h3>
+        <p>推奨構成は次のとおりです。ファイル変換編で作成した個別HTMLを<code>source</code>へ配置します。</p>
+        <pre><code>manual_project/
+├─ source/                 # 結合する個別HTML
+├─ assets/                 # 共通画像・CSS（任意）
+├─ manual.yaml             # 構成保存後に作成
+└─ output/                 # 構築時に作成
+   ├─ manual.html
+   └─ build-report.json</code></pre>
+        <div class="note"><strong>互換モード：</strong><code>source</code>を持たない、HTMLが直接置かれたフォルダも選択できます。その場合、<code>manual.yaml</code>はそのフォルダ直下へ保存されます。</div>
+
+        <h3 id="assembly-compose">2. マニュアル構成を編集する</h3>
+        <ol class="steps">
+          <li><strong><span class="button-name">マニュアル編集</span>を選ぶ</strong><p>起動画面から構成編集モードへ移動します。</p></li>
+          <li><strong><span class="button-name">HTMLフォルダ選択</span>を押す</strong><p><code>source</code>を含むプロジェクトルート、またはHTMLが置かれたフォルダを選択します。</p></li>
+          <li><strong>マニュアルタイトルを入力する</strong><p>完成版HTMLのタイトルとして使用されます。</p></li>
+          <li><strong>HTMLを構成へ追加する</strong><p>左の「HTML一覧」から対象ファイルを追加します。選択中のHTMLは右側でプレビューできます。</p></li>
+          <li><strong>順序と階層を整える</strong><p><span class="button-name">上へ</span>、<span class="button-name">下へ</span>、<span class="button-name">インデント</span>、<span class="button-name">アウトデント</span>を使用します。階層は最大3段です。</p></li>
+          <li><strong>タイトルと採番を設定する</strong><p>項目を選択して表示タイトルを変更し、必要な項目だけ採番を有効にします。HTMLを持たない章見出しは<span class="button-name">グループ追加</span>で作れます。</p></li>
+        </ol>
+        <figure class="screenshot">
+          <a href="マニュアル編集画面.png" target="_blank" rel="noopener"><img src="マニュアル編集画面.png" width="1905" height="903" loading="lazy" alt="ManualToolのマニュアル編集画面。左にHTML一覧、中央にマニュアル構成、右に選択HTMLプレビューが表示されている"></a>
+          <figcaption>マニュアル編集画面。左からHTMLを追加し、中央で順序・階層・採番を設定し、右で選択HTMLを確認します。</figcaption>
+        </figure>
+
+        <h4>構成操作の意味</h4>
+        <table>
+          <thead><tr><th>操作</th><th>結果</th></tr></thead>
+          <tbody>
+            <tr><td>グループ追加</td><td>HTMLを持たない章・分類見出しを追加</td></tr>
+            <tr><td>上へ／下へ</td><td>同じ階層内で順番を変更</td></tr>
+            <tr><td>インデント</td><td>直前の項目の子へ移動</td></tr>
+            <tr><td>アウトデント</td><td>親階層の次の項目へ移動</td></tr>
+            <tr><td>削除</td><td>構成から外す。元のHTMLファイル自体は削除しない</td></tr>
+            <tr><td>採番</td><td>章番号・節番号の自動付与対象を切り替える</td></tr>
+          </tbody>
+        </table>
+
+        <h3 id="assembly-build">3. YAMLを保存して完成版を構築する</h3>
+        <p><code>manual.yaml</code>にはマニュアルタイトル、入力・出力先、HTMLの順序、階層、表示タイトル、採番チェックの状態が保存されます。章番号そのものは保存せず、構築時に現在の順序から再計算します。</p>
+        <pre><code>version: 1
+manual:
+  title: 製品マニュアル
+  source_dir: source
+  output: output/manual.html
+chapters:
+  - id: overview
+    title: 概要
+    file: overview.html
+  - id: appendix
+    title: 付録
+    file: appendix.html
+    numbered: false       # 採番チェックを外した状態</code></pre>
+        <ol class="steps">
+          <li><strong><span class="button-name">YAML保存</span>を押す</strong><p>構成が検証され、問題がなければ<code>manual.yaml</code>へ保存されます。</p></li>
+          <li><strong>構成エラーがないことを確認する</strong><p>エラーが表示された場合は、対象ファイルや構成を修正して再度保存します。</p></li>
+          <li><strong><span class="button-name">マニュアル構築</span>を押す</strong><p>保存済みYAMLを使用して、章番号・目次・ページ番号を持つ完成版HTMLを生成します。</p></li>
+          <li><strong>出力結果を確認する</strong><p>画面に表示された出力パスのHTMLを開き、目次、章番号、本文、画像を確認します。</p></li>
+        </ol>
+        <div class="warning"><strong>保存が先です：</strong>構成やタイトルを変更すると<span class="button-name">マニュアル構築</span>は無効になります。もう一度<span class="button-name">YAML保存</span>を実行してください。</div>
+        <div class="success"><strong>完成版：</strong>既定では<code>output/manual.html</code>、構築結果の記録は<code>output/build-report.json</code>へ出力されます。</div>
+
+        <h4>CLIから再構築する場合</h4>
+        <p>一度保存したYAMLは、GUIを開かずに同じ構成で再構築できます。</p>
+        <pre><code>.\scripts\build.bat "C:\manual_project\manual.yaml"</code></pre>
+      </section>
+
+      <section id="trouble" class="card">
+        <h2>困ったときは</h2>
+        <table>
+          <thead><tr><th>症状</th><th>確認すること</th></tr></thead>
+          <tbody>
+            <tr><td>以前開いていた文書が「セッションが見つかりません」になる</td><td>サーバー再起動後は「フォルダを開く」から文書を開き直します。</td></tr>
+            <tr><td>HTMLを開くと画像が表示されない</td><td>HTML単体ではなくフォルダから読み込みます。出力先の<code>images/文書名/</code>も確認します。</td></tr>
+            <tr><td>PlantUMLがプレビューで図にならない</td><td>Markdownのコードブロックに<code>plantuml</code>が指定されているか、プレビューの変換メッセージに設定不足や構文エラーが出ていないかを確認します。</td></tr>
+            <tr><td>書き出したHTMLでPlantUMLの図が更新されない</td><td>ManualToolを起動し、原文欄のエラーを確認して<span class="button-name">再試行</span>を押します。ブラウザからローカルネットワークへのアクセス許可を求められた場合は、ManualToolとの通信を許可してください。</td></tr>
+            <tr><td>プレビューに時間がかかる</td><td>進捗表示の経過秒数を確認し、完了まで待ちます。大きなWordや画像変換では時間がかかります。</td></tr>
+            <tr><td>Visioや複合図の一部が違う</td><td>「変換上の注意」がある位置をWord原本と比較します。自動再現できない重ね合わせがあります。</td></tr>
+            <tr><td>表の行列・寸法ボタンが使えない</td><td>結合セルを含む表では安全のため無効になります。</td></tr>
+            <tr><td>マニュアル構築ボタンが使えない</td><td>現在の構成をYAMLへ保存し、構成エラーを解消します。</td></tr>
+          </tbody>
+        </table>
+        <h3>作業終了前のチェック</h3>
+        <ul class="checklist">
+          <li>個別HTMLの本文と画像をブラウザで確認した</li>
+          <li>変換上の注意がある場所を原本と比較した</li>
+          <li>Lint指摘を確認した</li>
+          <li><code>manual.yaml</code>を保存した</li>
+          <li>完成版HTMLの目次・採番・画像を確認した</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <footer>ManualTool 操作ガイド — ローカル環境用</footer>
+</body>
+</html>
