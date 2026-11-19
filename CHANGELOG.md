@@ -1,5 +1,7 @@
 # Changelog
 
+ManualToolの変更履歴は [ManualTool 変更履歴](manual-tool/CHANGELOG.md) を参照してください。
+
 ## 1.0.0
 
 - Initial standalone meeting import, child-ticket creation, and Markdown export distribution.

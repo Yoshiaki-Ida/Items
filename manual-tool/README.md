@@ -33,6 +33,10 @@ ManualToolの起動中は、書き出したHTMLの「PlantUMLソース」を編�
 個別ファイル編集の「指摘」欄で「Markdown出力」を押すと `lint-report.md` を取得できます。
 HTMLのフォルダ書き出し時も補助フォルダに生成されます。
 
+## 変更履歴
+
+[ManualTool 変更履歴](CHANGELOG.md)を参照してください。
+
 ## ソースコード
 
 保守・改修用のソースと、セットアップ・テスト・再ビルド手順は [source/](source/README.md) にあります。
