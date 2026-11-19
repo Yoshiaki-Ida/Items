@@ -1,5 +1,7 @@
 # ManualTool Windows版
 
+ManualToolは、Word・Markdown・HTMLの原稿を整えて、ブラウザで読めるマニュアルを作るWindowsツールです。PC上で原稿の変換・編集・チェックやPlantUMLの図の表示ができ、複数のHTMLを目次付きのマニュアルにまとめられます。
+
 ## 入手・起動
 
 Git for Windowsを入れ、保存先でPowerShellを開きます。
